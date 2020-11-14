@@ -34,6 +34,8 @@ group by SEXO;
 
 --Retornar, por mês de aniversário, a quantidade de colaboradores, o menor salário, o maior salário e o salário médio. Ordene os resultados por mês de aniversário.
 
+
+
 select extract (month from DTNASCIMENTO), COUNT(*), MIN(SALARIO), MAX(SALARIO), AVG (SALARIO)
 from funcionario
 group BY extract (month from DTNASCIMENTO);
@@ -149,3 +151,81 @@ set SALARIO =
 			(select MAX(SALARIO) from funcionario
 			where F.codigodepartamento = codigodepartamento)
 where CODIGODEPARTAMENTO is not null;
+
+--CONSULTA CORRELACIONADA COM O USO DE [NOT] EXISTS
+	
+--exibir o código e o nome do departamento onde há pelo menos um funcionário alocado.
+select D.CODIGODEPARTAMENTO, D.NOME
+from departamento d 
+where exists 
+			(select F.CODIGODEPARTAMENTO
+			from funcionario f
+			where D.codigodepartamento = F.codigodepartamento);		
+		
+--Se estivéssemos interessados em saber se há departamento sem ocorrência de colaborador alocado, bastaria usar a negação (NOT), conforme a seguir:	
+select D.CODIGODEPARTAMENTO, D.NOME
+from departamento d 
+where not exists 
+				(select F.CODIGODEPARTAMENTO
+				from funcionario f
+				where F.codigodepartamento=D.codigodepartamento);
+select * from funcionario f;
+drop table funcionario cascade;
+
+INSERT INTO CLIENTE (CODIGOCLIENTE, NOME, CPF, SEXO) VALUES   (1,'ROBERTA SILVA BRASIL','82998','F');
+INSERT INTO CLIENTE (CODIGOCLIENTE, NOME, CPF, SEXO) VALUES   (2,'MARCOS PEREIRA BRASIL','9999','M');
+
+--Consultas com o operador UNION
+CREATE TABLE FUNCIONARIO (CODIGOFUNCIONARIO int  NOT NULL,NOME varchar(90)  NOT NULL,CPF char(15)  NULL,SEXO char(1)  NOT NULL,DTNASCIMENTO date  NOT NULL,SALARIO real   NULL,CONSTRAINT FUNCIONARIO_pk PRIMARY KEY (CODIGOFUNCIONARIO));
+
+
+
+INSERT INTO FUNCIONARIO (CODIGOFUNCIONARIO, NOME, CPF, SEXO, DTNASCIMENTO, SALARIO)VALUES (1,'ROBERTA SILVA BRASIL','82998','F','20/02/1980',7000);
+INSERT INTO FUNCIONARIO (CODIGOFUNCIONARIO, NOME, CPF,SEXO, DTNASCIMENTO, SALARIO)VALUES (2,'MARIA SILVA BRASIL','9876','F','20/09/1988',9500);
+INSERT INTO FUNCIONARIO (CODIGOFUNCIONARIO, NOME, CPF, SEXO, DTNASCIMENTO, SALARIO)VALUES (3,'GABRIELLA PEREIRA LIMA','32998','F','20/02/1990',6000);
+INSERT INTO FUNCIONARIO (CODIGOFUNCIONARIO, NOME, CPF, SEXO, DTNASCIMENTO, SALARIO)VALUES (4,'MARCOS PEREIRA BRASIL','9999','M','20/02/1999',6000);
+INSERT INTO FUNCIONARIO (CODIGOFUNCIONARIO, NOME, CPF, SEXO, DTNASCIMENTO, SALARIO)VALUES (5,'HEMERSON SILVA BRASIL','9111','M','20/12/1992',4000);
+
+-- Retornar o nome e o CPF de todos os funcionários e clientes.
+select NOME, CPF
+from funcionario f2 
+union 
+select NOME, CPF
+from CLIENTE;
+
+--Retornar o nome e o CPF de todos os cidadãos que são funcionários e clientes.
+select NOME, CPF
+from cliente 
+intersect 
+select NOME, CPF
+from funcionario f;
+
+-- Retornar o nome e o CPF de todos os cidadãos que são funcionários, clientes e alunos
+select NOME, CPF
+from CLIENTE
+intersect
+select NOME, CPF
+from funcionario f 
+intersect
+select NOME, cpf 
+from aluno a ;
+
+--OBS.: Um aspecto importante é que uma consulta sob o formato X UNION Y INTERSECT Z é interpretada sendo X UNION (Y INTERSECT Z)
+
+ --Retornar o nome e o CPF dos funcionários que não são clientes.
+select NOME, CPF
+from funcionario f 
+except 
+select NOME, cpf 
+from cliente ;
+
+--Retornar o nome e o CPF dos cidadãos que são somente funcionários.
+select NOME, CPF
+from funcionario f 
+except
+select NOME, CPF
+from aluno a 
+except
+select NOME, CPF
+from CLIENTE;				    
+							    
