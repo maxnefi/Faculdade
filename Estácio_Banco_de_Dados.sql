@@ -131,3 +131,21 @@ select COUNT(*) as "RECEBEM MENOS"
 from funcionario f 
 where SALARIO < (select MAX(SALARIO) from funcionario f2 
 				where SEXO = 'F');
+							    
+							    
+--SUBCOLSULTAS CORRELATAS			
+--Retornar o código, o nome e o salário do(s) funcionário(s) que ganha(m) mais que a média salarial dos colaboradores do departamento ao qual pertencem.
+				
+select CODIGOFUNCIONARIO, NOME, SALARIO
+from funcionario f 
+where SALARIO > (select AVG(SALARIO) 
+				from funcionario f2 
+				where codigodepartamento= F.CODIGODEPARTAMENTO);
+				
+--suponha que surgiu a necessidade de equiparar os salários dos funcionários que atuam no mesmo departamento. Os funcionários de cada departamento 
+--terão salário atualizado em função do maior salário dos seus setores.
+update funcionario F
+set SALARIO = 
+			(select MAX(SALARIO) from funcionario
+			where F.codigodepartamento = codigodepartamento)
+where CODIGODEPARTAMENTO is not null;
